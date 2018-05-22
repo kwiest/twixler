@@ -18,7 +18,7 @@ defmodule Twixler.Api do
     headers = build_headers(request.headers)
     options = build_options()
 
-    response =
+    {:ok, response} =
       case request.method do
         :get -> HTTPoison.get(url, headers, options)
         :post -> HTTPoison.post(url, headers, request.body, options)
@@ -29,34 +29,57 @@ defmodule Twixler.Api do
     format_response(response)
   end
 
-  @spec format_response({atom(), HTTPoison.Response.t()}) ::
-          {:ok, String.t()} | {:ok, :not_modified} | {:ok, :found, String.t()} | {:error, atom()}
+  @spec format_response(HTTPoison.Response.t()) ::
+          {:ok, String.t()}
+          | {:ok, atom()}
+          | {:ok, :found, String.t()}
+          | {:error, atom()}
+          | {:error, atom(), String.t()}
   defp format_response(response) do
-    case response do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        {:ok, body}
+    case response.status_code do
+      code when code in 200..204 -> success_response(response)
+      code when code in 302..304 -> cached_response(response)
+      code when code in 400..429 -> bad_request_response(response)
+      code when code in 500..503 -> error_response(response)
+    end
+  end
 
-      {:ok, %HTTPoison.Response{status_code: 304, body: body}} ->
-        {:ok, :not_modified, body}
+  @spec success_response(HTTPoison.Response.t()) :: {:ok, String.t()} | {:ok, atom()}
+  defp success_response(response) do
+    case response.status_code do
+      200 -> {:ok, response.body}
+      201 -> {:ok, :created}
+      204 -> {:ok, :deleted}
+    end
+  end
 
-      {:ok, %HTTPoison.Response{status_code: 302, headers: headers}} ->
-        location = get_header(headers, "Location")
-        {:ok, :found, location}
+  @spec cached_response(HTTPoison.Response.t()) ::
+          {:ok, :found, String.t()} | {:ok, :not_modified, String.t()}
+  defp cached_response(response) do
+    case response.status_code do
+      302 -> {:ok, :found, get_header(response.headers, "Location")}
+      304 -> {:ok, :not_modified, response.body}
+    end
+  end
 
-      {:ok, %HTTPoison.Response{status_code: 401}} ->
-        {:error, :not_authorized}
+  @spec bad_request_response(HTTPoison.Response.t()) ::
+          {:error, :bad_request, String.t()} | {:error, atom()}
+  defp bad_request_response(response) do
+    case response.status_code do
+      400 -> {:error, :bad_request, response.body}
+      401 -> {:error, :unauthorized}
+      404 -> {:error, :not_found}
+      405 -> {:error, :method_not_allowed}
+      429 -> {:error, :rate_limited}
+    end
+  end
 
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        {:error, :not_found}
-
-      {:ok, %HTTPoison.Response{status_code: 429}} ->
-        {:error, :rate_limited}
-
-      {:ok, %HTTPoison.Response{status_code: 500}} ->
-        {:error, :server_error}
-
-      {:ok, %HTTPoison.Response{status_code: 503}} ->
-        {:error, :service_unavailable}
+  @spec error_response(HTTPoison.Response.t()) ::
+          {:error, :server_error, String.t()} | {:error, atom()}
+  defp error_response(response) do
+    case response.status_code do
+      500 -> {:error, :server_error, response.body}
+      503 -> {:error, :service_unavailable}
     end
   end
 
