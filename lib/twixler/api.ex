@@ -32,7 +32,7 @@ defmodule Twixler.Api do
   @spec format_response(HTTPoison.Response.t()) ::
           {:ok, String.t()}
           | {:ok, atom()}
-          | {:ok, :found, String.t()}
+          | {:ok, atom(), String.t()}
           | {:error, atom()}
           | {:error, atom(), String.t()}
   defp format_response(response) do
@@ -53,8 +53,7 @@ defmodule Twixler.Api do
     end
   end
 
-  @spec cached_response(HTTPoison.Response.t()) ::
-          {:ok, :found, String.t()} | {:ok, :not_modified, String.t()}
+  @spec cached_response(HTTPoison.Response.t()) :: {:ok, atom(), String.t()}
   defp cached_response(response) do
     case response.status_code do
       302 -> {:ok, :found, get_header(response.headers, "Location")}
