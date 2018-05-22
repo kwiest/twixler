@@ -4,7 +4,13 @@ defmodule Twixler.Request do
   """
 
   defstruct(method: nil, headers: [], path: nil, body: nil)
-  @type t :: %__MODULE__{method: atom(), headers: Keyword.t(), path: String.t(), body: String.t()}
+  @type method :: :get | :put | :post | :delete
+  @type t :: %__MODULE__{
+          method: method(),
+          headers: Keyword.t(),
+          path: String.t(),
+          body: String.t()
+        }
 end
 
 defmodule Twixler do

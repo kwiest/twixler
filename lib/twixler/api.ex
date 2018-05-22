@@ -18,10 +18,15 @@ defmodule Twixler.Api do
     headers = build_headers(request.headers)
     options = build_options()
 
-    case request.method do
-      :get -> format_response(HTTPoison.get(url, headers, options))
-      :post -> format_response(HTTPoison.post(url, headers, request.body, options))
-    end
+    response =
+      case request.method do
+        :get -> HTTPoison.get(url, headers, options)
+        :post -> HTTPoison.post(url, headers, request.body, options)
+        :put -> HTTPoison.put(url, headers, request.body, options)
+        :delete -> HTTPoison.delete(url, headers, options)
+      end
+
+    format_response(response)
   end
 
   @spec format_response({atom(), HTTPoison.Response.t()}) ::
