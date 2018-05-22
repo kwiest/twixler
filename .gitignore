@@ -25,3 +25,5 @@ twixler-*.tar
 # Ignore mix.lock
 mix.lock
 
+/.elixir_ls/
+
