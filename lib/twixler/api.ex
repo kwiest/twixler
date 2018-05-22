@@ -82,7 +82,7 @@ defmodule Twixler.Api do
     end
   end
 
-  @spec build_headers(list(keyword())) :: list(keyword())
+  @spec build_headers(Keyword.t()) :: list(keyword())
   defp build_headers(headers) do
     default_headers = [{"Content-Type", "application/json"}]
 
