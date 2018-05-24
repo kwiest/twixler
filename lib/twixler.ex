@@ -27,7 +27,11 @@ defmodule Twixler do
       :world
 
   """
-  def hello do
-    :world
+  def account_sid() do
+    Application.get_env(:twixler, :account_sid, "NO_ACCOUNT_SID_FOUND")
+  end
+
+  def auth_token() do
+    Application.get_env(:twixler, :auth_token, "NO_AUTH_TOKEN_FOUND")
   end
 end

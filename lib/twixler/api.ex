@@ -92,10 +92,7 @@ defmodule Twixler.Api do
 
   @spec build_options() :: list()
   defp build_options() do
-    account_sid = Application.get_env(:twixler, :account_sid, "NO_ACCOUNT_SID_FOUND")
-    auth_token = Application.get_env(:twixler, :auth_token, "NO_AUTH_TOKEN_FOUND")
-
-    [hackney: [basic_auth: {account_sid, auth_token}], timeout: 30_000]
+    [hackney: [basic_auth: {Twixler.account_sid(), Twixler.auth_token()}], timeout: 30_000]
   end
 
   @spec get_header(Keyword.t(), String.t()) :: String.t()
