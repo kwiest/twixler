@@ -10,9 +10,10 @@ defmodule Twixler.Api do
 
   @spec make_request(Twixler.Request.t()) ::
           {:ok, String.t()}
-          | {:ok, :not_modified}
-          | {:ok, :found, String.t()}
+          | {:ok, atom()}
+          | {:ok, atom(), String.t()}
           | {:error, atom()}
+          | {:error, atom(), String.t()}
   def make_request(request) do
     url = @api_base_url <> request.path
     headers = build_headers(request.headers)
