@@ -18,15 +18,6 @@ defmodule Twixler do
   Documentation for Twixler.
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Twixler.hello
-      :world
-
-  """
   def account_sid() do
     Application.get_env(:twixler, :account_sid, "NO_ACCOUNT_SID_FOUND")
   end

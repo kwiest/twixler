@@ -8,6 +8,25 @@ defmodule Twixler.Api do
 
   @api_base_url "https://api.twilio.com/2010-04-01"
 
+  @doc """
+  Building a query string from a map
+
+  ## Examples
+
+    query_params = %{"hello" => "world" "i_am" => "Twixler"}
+    Twixler.Api.parameterize_map(query_params)
+    # "?hello=world&ia_am=Twixler"
+  """
+  @spec parameterize_map(map()) :: String.t()
+  def parameterize_map(parameter_map) do
+    URI.encode(
+      "?" <>
+        (parameter_map
+         |> Enum.map(fn {key, value} -> "#{key}=#{value}" end)
+         |> Enum.join("&"))
+    )
+  end
+
   @spec make_request(Twixler.Request.t()) ::
           {:ok, String.t()}
           | {:ok, atom()}
